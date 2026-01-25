@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-MAIL | Ultra Temp Mail</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #8B5CF6;
+            --accent: #06B6D4;
+            --dark-bg: #0F172A;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--dark-bg);
+            color: #f8fafc;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Animated Mesh Background */
+        .bg-mesh {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.15) 0px, transparent 50%);
+            z-index: -1;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .neon-button {
+            position: relative;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .neon-button:hover {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .email-display {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            letter-spacing: 1px;
+        }
+
+        /* Progress Bar for auto-refresh */
+        .progress-bar {
+            height: 3px;
+            background: var(--primary);
+            width: 0%;
+            transition: width 5s linear;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+
+        @keyframes pulse-border {
+            0% { border-color: rgba(139, 92, 246, 0.3); }
+            50% { border-color: rgba(139, 92, 246, 0.8); }
+            100% { border-color: rgba(139, 92, 246, 0.3); }
+        }
+
+        .animate-pulse-slow {
+            animation: pulse-border 3s infinite;
+        }
+    </style>
+</head>
+<body class="py-10 px-4">
+    <div class="bg-mesh"></div>
+
+    <div class="max-w-3xl mx-auto">
+        <!-- Logo & Title -->
+        <header class="text-center mb-12">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-600 to-cyan-500 mb-4 shadow-lg shadow-purple-500/20">
+                <i class="fas fa-bolt-lightning text-3xl text-white"></i>
+            </div>
+            <h1 class="text-5xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
+                X-MAIL
+            </h1>
+            <p class="text-slate-400 mt-2 font-medium uppercase tracking-[0.2em] text-xs">Premium Burner Address</p>
+        </header>
+
+        <!-- Main Card -->
+        <div class="glass-panel rounded-[2.5rem] p-8 md:p-12 mb-8 animate-pulse-slow">
+            
+            <!-- Fact Slider -->
+            <div id="fact-box" class="mb-10 text-center">
+                <div class="inline-block py-1 px-4 rounded-full bg-slate-800/50 border border-slate-700 mb-2">
+                    <span class="text-xs font-bold text-cyan-400 tracking-wider">SECURE INFO</span>
+                </div>
+                <p id="fun-fact" class="text-slate-300 text-sm italic transition-all duration-500">
+                    Generating a privacy-focused experience for you...
+                </p>
+            </div>
+
+            <!-- Email Area -->
+            <div class="relative group mb-8">
+                <input type="text" id="email-address" readonly
+                    class="email-display w-full p-6 pr-40 rounded-2xl text-xl md:text-2xl font-bold text-white focus:outline-none transition-all cursor-default"
+                    value="Creating mail...">
+                
+                <div class="absolute right-3 top-3 bottom-3 flex gap-2">
+                    <button onclick="copyEmail()" class="neon-button bg-white text-black px-6 rounded-xl font-bold text-sm flex items-center gap-2">
+                        <i class="fas fa-copy"></i> COPY
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button onclick="generateEmail()" class="bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-2xl font-bold transition-all flex items-center gap-2 border border-slate-700">
+                    <i class="fas fa-redo"></i> GENERATE NEW
+                </button>
+            </div>
+        </div>
+
+        <!-- Inbox Control Bar -->
+        <div class="flex justify-between items-center mb-6 px-4">
+            <h2 class="text-xl font-bold flex items-center gap-3">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+                </span>
+                Live Inbox
+            </h2>
+            <div id="countdown" class="text-xs font-mono text-slate-500 tracking-widest uppercase">
+                Refreshing in 5s
+            </div>
+        </div>
+
+        <div class="progress-bar mb-6 rounded-full overflow-hidden opacity-30"></div>
+
+        <!-- Mail List -->
+        <div id="email-list" class="space-y-4 min-min-h-[200px]">
+            <div class="text-center py-20 bg-slate-900/40 rounded-[2rem] border border-dashed border-slate-700">
+                <div class="text-slate-600 mb-4 text-4xl"><i class="fas fa-envelope-open-text"></i></div>
+                <p class="text-slate-500 font-medium">Listening for incoming digital birds...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal for Reading Mail -->
+    <div id="mail-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 hidden backdrop-blur-md">
+        <div class="glass-panel w-full max-w-2xl max-h-[85vh] rounded-[2.5rem] overflow-hidden flex flex-col scale-90 transition-transform duration-300 shadow-2xl shadow-purple-500/10">
+            <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-900/50">
+                <div>
+                    <h3 class="font-bold text-lg text-white" id="mail-subject">---</h3>
+                    <p class="text-xs text-purple-400" id="mail-sender"></p>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-red-500/20 hover:text-red-500 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-8 overflow-y-auto text-slate-300 leading-relaxed bg-white/5" id="mail-content">
+                <!-- Content -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Settings & Keys
+        const API_KEY = 'k_obbeJkqMb32qjEd9T4SsKlcu9MfkXC37W';
+        let login = "";
+        let domain = "";
+        const domains = ["1secmail.com", "1secmail.org", "1secmail.net"];
+        const funFacts = [
+            "Your digital fingerprint is unique, but this mail isn't!",
+            "Did you know? Ray Tomlinson sent the first email in 1971.",
+            "Temporary mails can save up to 40% of your mobile battery by stopping sync notifications.",
+            "Spam makes up nearly 45% of all emails sent globally.",
+            "The symbol '@' was chosen because it was hardly used in programming."
+        ];
+
+        // UI Helpers
+        function startProgressBar() {
+            const bar = document.querySelector('.progress-bar');
+            bar.style.transition = 'none';
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.transition = 'width 5s linear';
+                bar.style.width = '100%';
+            }, 50);
+        }
+
+        function updateFact() {
+            const fact = funFacts[Math.floor(Math.random() * funFacts.length)];
+            const el = document.getElementById('fun-fact');
+            el.style.opacity = '0';
+            setTimeout(() => {
+                el.innerText = fact;
+                el.style.opacity = '1';
+            }, 500);
+        }
+
+        // Logic
+        async function generateEmail() {
+            const randomUser = Math.random().toString(36).substring(2, 12);
+            login = randomUser;
+            domain = domains[Math.floor(Math.random() * domains.length)];
+            document.getElementById('email-address').value = `${login}@${domain}`;
+            
+            // UI Reset
+            document.getElementById('email-list').innerHTML = `
+                <div class="flex justify-center p-12">
+                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-purple-500"></div>
+                </div>`;
+            checkEmails();
+        }
+
+        async function checkEmails() {
+            if(!login) return;
+            startProgressBar();
+            try {
+                const res = await fetch(`https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`);
+                const data = await res.json();
+                
+                const list = document.getElementById('email-list');
+                if (data.length > 0) {
+                    list.innerHTML = "";
+                    data.forEach(mail => {
+                        list.innerHTML += `
+                            <div onclick="readMail(${mail.id})" class="group cursor-pointer bg-slate-800/40 hover:bg-slate-800 p-6 rounded-2xl border border-slate-700/50 hover:border-purple-500/50 transition-all flex items-center justify-between">
+                                <div class="flex items-center gap-5">
+                                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-100">${mail.from}</h4>
+                                        <p class="text-sm text-slate-400 truncate w-40 md:w-80">${mail.subject}</p>
+                                    </div>
+                                </div>
+                                <div class="text-xs font-bold text-purple-400 group-hover:translate-x-1 transition-transform">OPEN <i class="fas fa-chevron-right ml-1"></i></div>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (e) { console.error("Poll error"); }
+        }
+
+        async function readMail(id) {
+            const res = await fetch(`https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${id}`);
+            const data = await res.json();
+            
+            document.getElementById('mail-subject').innerText = data.subject;
+            document.getElementById('mail-sender').innerText = `From: ${data.from} | ${data.date}`;
+            document.getElementById('mail-content').innerHTML = data.htmlBody || `<pre class="whitespace-pre-wrap">${data.body}</pre>`;
+            
+            const modal = document.getElementById('mail-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.children[0].classList.remove('scale-90'), 10);
+        }
+
+        function closeModal() {
+            document.getElementById('mail-modal').children[0].classList.add('scale-90');
+            setTimeout(() => document.getElementById('mail-modal').classList.add('hidden'), 200);
+        }
+
+        function copyEmail() {
+            const el = document.getElementById('email-address');
+            navigator.clipboard.writeText(el.value);
+            const btn = event.currentTarget;
+            btn.innerHTML = '<i class="fas fa-check"></i> COPIED';
+            setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i> COPY', 2000);
+        }
+
+        // Init & Intervals
+        setInterval(checkEmails, 5000);
+        setInterval(updateFact, 8000);
+        generateEmail();
+        updateFact();
+    </script>
+</body>
+</html>
